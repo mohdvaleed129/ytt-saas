@@ -1,0 +1,108 @@
+{
+  "_readme": "Fill in every empty url with a PUBLIC video you can open in an incognito window. Empty urls are reported as SKIPPED, never faked. Default mode is native (1 credit, no AI). Cases with mode auto/generate only run with --allow-generate.",
+  "cases": [
+    {
+      "label": "regular-captioned-en",
+      "category": "Regular video, existing captions (the example ID used in Supadata's own docs)",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "mode": "native"
+    },
+    {
+      "label": "regular-captioned-en-lang-es",
+      "category": "Language handling: request a language that may not exist; docs say it falls back to the first available language",
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "mode": "native",
+      "lang": "es"
+    },
+    {
+      "label": "regular-captioned-non-english",
+      "category": "Regular video whose captions are NOT English (e.g. Hindi or Spanish)",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "regular-multi-caption-tracks",
+      "category": "Video with several caption languages: check availableLangs, then re-run with lang set",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "regular-no-captions-native",
+      "category": "Regular video with NO captions, native mode: expect HTTP 206 transcript-unavailable (1 credit)",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "short-captioned-watch-form",
+      "category": "YouTube Short with captions, URL as youtube.com/shorts/ID (sent as canonical watch URL by default)",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "short-captioned-as-given",
+      "category": "SAME Short as above. Run with --as-given to test whether the /shorts/ URL form works directly",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "short-no-captions-native",
+      "category": "YouTube Short with no captions, native mode",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "long-captioned-60min-plus",
+      "category": "Long video (60+ min) with existing captions, native only: checks payload size and latency",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "private-or-unavailable",
+      "category": "A private, deleted or members-only video the user can identify",
+      "url": "",
+      "mode": "native"
+    },
+    {
+      "label": "nonexistent-id",
+      "category": "Well-formed but (almost certainly) nonexistent ID; if this returns a transcript, replace the ID",
+      "url": "https://www.youtube.com/watch?v=xxxxxxxxxxx",
+      "mode": "native"
+    },
+    {
+      "label": "ai-generate-short-clip",
+      "category": "AI transcription of a video UNDER 2 minutes with no captions (needs --allow-generate and YOUTUBE_API_KEY; costs about 2-4 credits)",
+      "url": "",
+      "mode": "generate"
+    },
+    {
+      "label": "reject-non-youtube",
+      "category": "Local validation (no API call, no credits)",
+      "url": "https://example.com/watch?v=dQw4w9WgXcQ",
+      "expect": { "outcome": "rejected-locally", "code": "NOT_YOUTUBE" }
+    },
+    {
+      "label": "reject-lookalike-host",
+      "category": "Local validation (no API call, no credits)",
+      "url": "https://youtube.com.evil.example/watch?v=dQw4w9WgXcQ",
+      "expect": { "outcome": "rejected-locally", "code": "NOT_YOUTUBE" }
+    },
+    {
+      "label": "reject-bad-video-id",
+      "category": "Local validation (no API call, no credits)",
+      "url": "https://www.youtube.com/watch?v=short",
+      "expect": { "outcome": "rejected-locally", "code": "INVALID_VIDEO_ID" }
+    },
+    {
+      "label": "reject-playlist-or-channel",
+      "category": "Local validation (no API call, no credits)",
+      "url": "https://www.youtube.com/playlist?list=PLrAXtmErZgOeiKm4sgNOknGvNjby9efdf",
+      "expect": { "outcome": "rejected-locally", "code": "UNSUPPORTED_URL" }
+    },
+    {
+      "label": "reject-garbage",
+      "category": "Local validation (no API call, no credits)",
+      "url": "not a url",
+      "expect": { "outcome": "rejected-locally", "code": "INVALID_URL" }
+    }
+  ]
+}
