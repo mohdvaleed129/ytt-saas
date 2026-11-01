@@ -187,6 +187,54 @@ async function runCase(entry) {
     const stats = analyzeSegments(res.content, meta?.durationSec ?? null);
     const normalized = normalizeSegments(res.content);
     const srt = toSrt(normalized);
+    // Save complete transcript locally for offline inspection.
+const transcriptDir = `${args.out}/transcripts`;
+
+await mkdir(transcriptDir, { recursive: true });
+
+const transcriptFile = `${transcriptDir}/${parsed.videoId}.json`;
+
+await writeFile(
+  transcriptFile,
+  JSON.stringify({
+    videoId: parsed.videoId,
+    title: meta?.title ?? null,
+    durationSec: meta?.durationSec ?? null,
+    language: res.lang ?? null,
+    segmentCount: res.content.length,
+    segments: res.content,
+  }, null, 2)
+);
+    const overlappingSegments = [];
+    const sortedSegments = [...res.content].sort(
+      (a, b) => a.offset - b.offset
+    );
+
+    for (let i = 0; i < sortedSegments.length; i++) {
+      const current = sortedSegments[i];
+      const currentEnd = current.offset + current.duration;
+
+      for (let j = i + 1; j < sortedSegments.length; j++) {
+        const next = sortedSegments[j];
+
+        if (next.offset >= currentEnd) break;
+
+        overlappingSegments.push({
+          previous: {
+          text: current.text,
+          startMs: current.offset,
+          endMs: currentEnd,
+        },
+        current: {
+          text: next.text,
+          startMs: next.offset,
+          endMs: next.offset + next.duration,
+        },
+        overlapMs: currentEnd - next.offset,
+      });
+    }
+  }
+  console.log('\nOVERLAP DIAGNOSTIC:', JSON.stringify(overlappingSegments, null, 2));
     return finish(res.content.length === 0 ? 'empty-transcript' : 'transcript', {
       httpStatus, credits, latencyMs,
       lang: res.lang,
@@ -197,6 +245,8 @@ async function runCase(entry) {
       normalizedCount: normalized.length,
       srtBytes: Buffer.byteLength(srt),
       sample: { first: res.content.slice(0, 3), last: res.content.slice(-2) },
+      overlappingSegments,
+      transcriptFile,
     });
   } catch (err) {
     const latencyMs = Math.round(performance.now() - t0);

@@ -17,7 +17,7 @@
     {
       "label": "regular-captioned-non-english",
       "category": "Regular video whose captions are NOT English (e.g. Hindi or Spanish)",
-      "url": "",
+      "url": "https://www.youtube.com/watch?v=YPpOqfIQ5ME",
       "mode": "native"
     },
     {
@@ -29,19 +29,19 @@
     {
       "label": "regular-no-captions-native",
       "category": "Regular video with NO captions, native mode: expect HTTP 206 transcript-unavailable (1 credit)",
-      "url": "",
+      "url": "https://www.youtube.com/watch?v=6VgBHZJggkA",
       "mode": "native"
     },
     {
       "label": "short-captioned-watch-form",
       "category": "YouTube Short with captions, URL as youtube.com/shorts/ID (sent as canonical watch URL by default)",
-      "url": "",
+      "url": "https://www.youtube.com/shorts/GQuBaezpmG8",
       "mode": "native"
     },
     {
       "label": "short-captioned-as-given",
       "category": "SAME Short as above. Run with --as-given to test whether the /shorts/ URL form works directly",
-      "url": "",
+      "url":  "https://www.youtube.com/shorts/GQuBaezpmG8",
       "mode": "native"
     },
     {
