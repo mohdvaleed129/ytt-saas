@@ -1,0 +1,13 @@
+#!/bin/sh
+# Blocks a commit when gitleaks finds a secret in the staged changes.
+# Enable once per clone:  git config core.hooksPath .githooks
+# The hook fails closed: if gitleaks is missing the commit is refused, so a missing tool can never
+# silently disable scanning. Bypassing it deliberately is `git commit --no-verify` (CI still scans).
+BIN="${GITLEAKS_BIN:-gitleaks}"
+ROOT="$(git rev-parse --show-toplevel)"
+if ! command -v "$BIN" >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks not found (looked for '$BIN')." >&2
+  echo "Install it (see tools/p0/README.md) or set GITLEAKS_BIN to its full path." >&2
+  exit 1
+fi
+exec "$BIN" git --pre-commit --staged --redact --no-banner --config "$ROOT/.gitleaks.toml"

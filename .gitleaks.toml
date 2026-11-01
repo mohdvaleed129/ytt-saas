@@ -1,0 +1,32 @@
+# gitleaks configuration for ytt-saas.
+# Extends the maintained default ruleset (Google API keys, generic private keys, cloud tokens, ...)
+# and adds rules for the providers this project actually uses.
+title = "ytt-saas secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "supadata-api-key"
+description = "Supadata API key"
+regex = '''\bsd_[A-Za-z0-9]{16,}\b'''
+keywords = ["sd_"]
+
+[[rules]]
+id = "razorpay-key-id"
+description = "Razorpay key id"
+regex = '''\brzp_(?:live|test)_[A-Za-z0-9]{8,}\b'''
+keywords = ["rzp_"]
+
+[[rules]]
+id = "razorpay-secret-assignment"
+description = "Razorpay key secret or webhook secret assigned in config"
+regex = '''(?i)(?:razorpay[_-]?(?:key[_-]?)?secret|webhook[_-]?secret)\s*[:=]\s*['"]?([A-Za-z0-9_\-]{12,})'''
+keywords = ["secret"]
+secretGroup = 1
+
+[[rules]]
+id = "mongodb-uri-credentials"
+description = "MongoDB connection string containing a username and password"
+regex = '''mongodb(?:\+srv)?:\/\/[^\s:\/@]+:[^\s@]+@'''
+keywords = ["mongodb"]
