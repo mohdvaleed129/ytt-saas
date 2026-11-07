@@ -84,8 +84,16 @@ test('production is stricter: https origins required, mock provider refused', ()
   assert.equal(loadConfig({ ...base, NODE_ENV: 'development' }).isProduction, false);
 });
 
-test('only the mock provider exists in P1', () => {
-  assert.ok(issuesOf({ ...base, TRANSCRIPTION_PROVIDER: 'supadata' }).issues.some((i) => i.variable === 'TRANSCRIPTION_PROVIDER'));
+test('mock and supadata providers are accepted when properly configured', () => {
+  assert.equal(loadConfig(base).transcriptionProvider, 'mock');
+
+  const c = loadConfig({
+    ...base,
+    TRANSCRIPTION_PROVIDER: 'supadata',
+    SUPADATA_API_KEY: 'sd_test_placeholder_key',
+  });
+
+  assert.equal(c.transcriptionProvider, 'supadata');
 });
 
 test('config is immutable', () => {
@@ -100,4 +108,38 @@ test('describeConfig is safe to log: no credentials', () => {
   assert.ok(!text.includes(FAKE_PASSWORD));
   assert.ok(text.includes('cluster0.example.net'));
   assert.ok(!('uri' in describeConfig(c)));
+});
+
+test('Supadata provider requires an API key', () => {
+  const e = issuesOf({
+    ...base,
+    TRANSCRIPTION_PROVIDER: 'supadata',
+  });
+
+  assert.ok(e.issues.some((i) => i.variable === 'SUPADATA_API_KEY'));
+});
+
+test('Supadata configuration is loaded safely with AI generation disabled by default', () => {
+  const c = loadConfig({
+    ...base,
+    TRANSCRIPTION_PROVIDER: 'supadata',
+    SUPADATA_API_KEY: 'sd_test_placeholder_key',
+  });
+
+  assert.equal(c.transcriptionProvider, 'supadata');
+  assert.equal(c.supadata.baseUrl, 'https://api.supadata.ai/v1');
+  assert.equal(c.supadata.timeoutMs, 30000);
+  assert.equal(c.supadata.allowGenerate, false);
+  assert.equal(c.supadata.apiKey, 'sd_test_placeholder_key');
+});
+
+test('Supadata AI generation requires explicit opt-in', () => {
+  const c = loadConfig({
+    ...base,
+    TRANSCRIPTION_PROVIDER: 'supadata',
+    SUPADATA_API_KEY: 'sd_test_placeholder_key',
+    SUPADATA_ALLOW_GENERATE: 'true',
+  });
+
+  assert.equal(c.supadata.allowGenerate, true);
 });

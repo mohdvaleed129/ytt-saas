@@ -199,3 +199,67 @@ test('logs: path only (no query string), no bodies, health checks at debug level
   assert.ok(!objs.some((o) => o.path === '/healthz'), 'health checks should not log at info');
   await s.close();
 });
+test('POST /api/transcriptions returns a normalized native transcript', async () => {
+  const { transcriptionRouter } = await import('../src/modules/transcription/transcription-router.js');
+  const s = await boot({
+    routes: (app) => app.use('/api/transcriptions', transcriptionRouter({ provider: new MockProvider() })),
+  });
+
+  const r = await post(s, '/api/transcriptions', {
+    url: 'https://www.youtube.com/watch?v=mockNative1',
+    lang: 'es',
+  });
+
+  assert.equal(r.status, 200);
+  const b = await r.json();
+  assert.equal(b.data.videoId, 'mockNative1');
+  assert.equal(b.data.status, 'completed');
+  assert.equal(b.data.transcript.lang, 'es');
+  assert.ok(b.data.transcript.segments.length > 0);
+  await s.close();
+});
+
+test('POST /api/transcriptions rejects invalid YouTube URLs', async () => {
+  const { transcriptionRouter } = await import('../src/modules/transcription/transcription-router.js');
+  const s = await boot({
+    routes: (app) => app.use('/api/transcriptions', transcriptionRouter({ provider: new MockProvider() })),
+  });
+
+  const r = await post(s, '/api/transcriptions', {
+    url: 'https://example.com/video',
+  });
+
+  assert.equal(r.status, 400);
+  assert.equal((await r.json()).error.code, 'VALIDATION_ERROR');
+  await s.close();
+});
+
+test('POST /api/transcriptions returns 422 when captions are unavailable', async () => {
+  const { transcriptionRouter } = await import('../src/modules/transcription/transcription-router.js');
+  const s = await boot({
+    routes: (app) => app.use('/api/transcriptions', transcriptionRouter({ provider: new MockProvider() })),
+  });
+
+  const r = await post(s, '/api/transcriptions', {
+    url: 'https://www.youtube.com/watch?v=mockNoCaps1',
+  });
+
+  assert.equal(r.status, 422);
+  assert.equal((await r.json()).error.code, 'TRANSCRIPT_UNAVAILABLE');
+  await s.close();
+});
+
+test('POST /api/transcriptions rejects malformed request bodies', async () => {
+  const { transcriptionRouter } = await import('../src/modules/transcription/transcription-router.js');
+  const s = await boot({
+    routes: (app) => app.use('/api/transcriptions', transcriptionRouter({ provider: new MockProvider() })),
+  });
+
+  const r = await post(s, '/api/transcriptions', {
+    url: 'not-a-url',
+  });
+
+  assert.equal(r.status, 400);
+  assert.equal((await r.json()).error.code, 'VALIDATION_ERROR');
+  await s.close();
+});

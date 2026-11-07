@@ -4,7 +4,7 @@ import { createLogger } from './lib/logger.js';
 import { createDatabase } from './db/connection.js';
 import { createTranscriptionProvider } from './providers/transcription/registry.js';
 import { createRuntime } from './runtime.js';
-
+import { transcriptionRouter } from './modules/transcription/transcription-router.js';
 let config;
 try {
   config = loadConfig();
@@ -26,7 +26,15 @@ const database = createDatabase({
   autoIndex: !config.isProduction,
 });
 const provider = createTranscriptionProvider(config);
-const runtime = createRuntime({ config, logger, database, provider });
+const runtime = createRuntime({
+  config,
+  logger,
+  database,
+  provider,
+  routes: (app) => {
+    app.use('/api/transcriptions', transcriptionRouter({ provider }));
+  },
+});
 
 let stopping = false;
 async function shutdown(reason, exitCode = 0) {

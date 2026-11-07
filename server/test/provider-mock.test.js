@@ -89,5 +89,25 @@ test('every call is recorded so tests can prove no unnecessary billable call hap
 
 test('registry builds the provider named in the config', () => {
   assert.equal(createTranscriptionProvider(makeConfig()).name, 'mock');
-  assert.throws(() => createTranscriptionProvider({ transcriptionProvider: 'nope' }), /Unknown transcription provider/);
+
+  const supadataConfig = {
+    ...makeConfig(),
+    transcriptionProvider: 'supadata',
+    supadata: {
+      apiKey: 'test_supadata_key_1234567890123456',
+      baseUrl: 'https://api.supadata.ai/v1',
+      timeoutMs: 30000,
+      allowGenerate: false,
+    },
+  };
+
+  const provider = createTranscriptionProvider(supadataConfig);
+
+  assert.equal(provider.name, 'supadata');
+  assert.equal(provider.isConfigured(), true);
+
+  assert.throws(
+    () => createTranscriptionProvider({ transcriptionProvider: 'nope' }),
+    /Unknown transcription provider/,
+  );
 });

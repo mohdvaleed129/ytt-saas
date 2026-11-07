@@ -9,18 +9,36 @@ export function createRuntime({ config, logger, database, provider, routes }) {
     app,
 
     /** @returns {Promise<number>} the port actually bound (useful when PORT is 0 in tests) */
-    async start() {
-      await database.connect();
-      await new Promise((resolve, reject) => {
-        server = app.listen(config.port, config.host, resolve);
-        server.once('error', reject);
-      });
-      server.requestTimeout = config.requestTimeoutMs;
-      server.headersTimeout = Math.min(config.requestTimeoutMs, 60_000);
-      const { port } = server.address();
-      logger.info({ port, host: config.host }, 'listening');
-      return port;
-    },
+async start() {
+  await database.connect();
+
+  server = app.listen(config.port, config.host);
+
+  await new Promise((resolve, reject) => {
+    if (server.listening) {
+      resolve();
+      return;
+    }
+
+    server.once('listening', resolve);
+    server.once('error', reject);
+  });
+
+  server.requestTimeout = config.requestTimeoutMs;
+  server.headersTimeout = Math.min(config.requestTimeoutMs, 60_000);
+
+  const address = server.address();
+
+  if (!address || typeof address === 'string') {
+    throw new Error('HTTP server failed to bind to a TCP port');
+  }
+
+  const { port } = address;
+
+  logger.info({ port, host: config.host }, 'listening');
+
+  return port;
+},
 
     /** Stops accepting connections, lets in-flight requests finish (up to the timeout), then closes the database. */
     async stop() {
