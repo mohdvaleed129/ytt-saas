@@ -5,7 +5,7 @@
 const env = import.meta.env ?? {};
 
 /** Working product name. Change it here only; the brand is not final. */
-export const APP_NAME = 'Linefeed';
+export const APP_NAME = 'Transcripto';
 
 /** Base URL of the backend API, without a trailing slash. Empty means "not configured". */
 export const API_URL = String(env.VITE_API_URL ?? '').trim().replace(/\/+$/, '');
