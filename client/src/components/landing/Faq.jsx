@@ -5,6 +5,8 @@ const ITEMS = [
   ['Is my transcript saved?', 'In this version the server does not keep transcripts for you. The last 20 are kept in your own browser, on this device only, and you can delete them from the Dashboard at any time.'],
   ['How accurate is it?', 'It shows the video’s captions as they are. Captions written by the uploader are usually good; auto-generated ones can contain mistakes. Nothing is corrected or rewritten.'],
   ['Why does the SRT file trim times?', 'Many captions are timed so that one line is still on screen when the next begins, which makes players show two at once. By default the SRT ends each line when the next one starts. Your stored transcript keeps the original times, and you can switch trimming off.'],
+  ['Can I get a YouTube transcript with timestamps?', 'Yes. Transcripts include timestamps so you can follow the video content and find specific moments. You can copy the transcript or download it as a TXT or SRT file.'],
+  ['How do I use this YouTube transcript generator?', 'Paste a YouTube video or Shorts link, choose a caption language or Auto, and request the transcript. It works when captions are available on the video. AI transcription for videos without captions is not available yet.'],
   ['Can I use any transcript I get?', 'Not necessarily. The words in a video can be protected by copyright. Only use a transcript in ways you have the right to. This is general information, not legal advice.'],
 ];
 
