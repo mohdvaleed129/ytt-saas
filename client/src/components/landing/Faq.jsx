@@ -1,4 +1,4 @@
-const ITEMS = [
+﻿const ITEMS = [
   ['Which videos work?', 'Videos and Shorts that already have captions available on YouTube. Auto-generated captions count too. Private, deleted or restricted videos cannot be read.'],
   ['What if a video has no captions?', 'You get a clear “No captions available” message. AI transcription for those videos is planned but is not available yet, so nothing is generated for you.'],
   ['Which languages can I get?', 'Whatever caption languages the video has. Pick one or leave Auto. If the language you pick does not exist, the result shows which language came back. Each language is a separate request.'],
@@ -27,3 +27,4 @@ export default function Faq() {
     </section>
   );
 }
+
